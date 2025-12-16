@@ -190,7 +190,12 @@ export default function Analytics() {
   });
 
   const computedMetrics = useMemo(() => {
-    if (!analytics) return null;
+    if (!analytics) {
+      return {
+        totalTickets: 0,
+        avgResolutionTime: 0
+      };
+    }
 
     const allTickets = analytics.ticketsByCategory.reduce((sum, item) => sum + item.count, 0);
     const avgResolutionTime = analytics.resolutionTimeByPriority.length > 0
@@ -266,7 +271,7 @@ export default function Analytics() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Studios</SelectItem>
-              {STUDIOS.map((studio) => (
+              {STUDIOS.map((studio: any) => (
                 <SelectItem key={studio.id} value={studio.id}>
                   {studio.name}
                 </SelectItem>
@@ -293,15 +298,15 @@ export default function Analytics() {
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
       >
         {[
-          { title: "Total Tickets", value: computedMetrics?.totalTickets || 0, icon: BarChart3, color: "from-blue-500 to-cyan-500" },
-          { title: "Categories", value: data?.ticketsByCategory.length || 0, icon: FolderKanban, color: "from-purple-500 to-pink-500" },
-          { title: "Studios", value: data?.ticketsByStudio.length || 0, icon: Building2, color: "from-emerald-500 to-teal-500" },
-          { title: "Avg Resolution", value: `${computedMetrics?.avgResolutionTime || 0}h`, icon: Target, color: "from-blue-600 to-blue-500" },
+          { id: "total", title: "Total Tickets", value: computedMetrics?.totalTickets || 0, icon: BarChart3, color: "from-blue-500 to-cyan-500" },
+          { id: "categories", title: "Categories", value: data?.ticketsByCategory.length || 0, icon: FolderKanban, color: "from-purple-500 to-pink-500" },
+          { id: "studios", title: "Studios", value: data?.ticketsByStudio.length || 0, icon: Building2, color: "from-emerald-500 to-teal-500" },
+          { id: "resolution", title: "Avg Resolution", value: `${computedMetrics?.avgResolutionTime || 0}h`, icon: Target, color: "from-blue-600 to-blue-500" },
         ].map((metric, index) => {
           const Icon = metric.icon;
           return (
             <motion.div
-              key={metric.title}
+              key={metric.id}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.05 }}
