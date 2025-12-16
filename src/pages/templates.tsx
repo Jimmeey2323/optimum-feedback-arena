@@ -240,9 +240,9 @@ export default function Templates() {
 
   const filteredTemplates = templates.filter(template => {
     const matchesSearch = 
-      template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      template.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      template.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      (template.name ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (template.description ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (template.tags ?? []).some(tag => (tag ?? '').toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCategory = categoryFilter === "all" || template.category === categoryFilter;
     const matchesPriority = priorityFilter === "all" || template.priority === priorityFilter;
     return matchesSearch && matchesCategory && matchesPriority;
@@ -267,7 +267,7 @@ export default function Templates() {
       priority: newTemplate.priority,
       suggestedTitle: newTemplate.suggestedTitle,
       suggestedDescription: newTemplate.suggestedDescription,
-      tags: newTemplate.tags.split(",").map(t => t.trim()).filter(Boolean),
+      tags: (newTemplate.tags ?? '').split(",").map(t => t.trim()).filter(Boolean),
       color: "from-slate-500 to-gray-500",
       isCustom: true,
       usageCount: 0,

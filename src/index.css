@@ -32,32 +32,32 @@
   --sidebar: 240 30% 99%;
   --sidebar-foreground: 240 25% 20%;
   --sidebar-border: 240 15% 88%;
-  --sidebar-primary: 252 85% 58%;
+  --sidebar-primary: 217 95% 45%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 252 85% 58%;
+  --sidebar-accent: 217 95% 45%;
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-ring: 252 85% 60%;
+  --sidebar-ring: 217 95% 50%;
   
   /* Popover */
   --popover: 0 0% 100%;
   --popover-foreground: 240 25% 10%;
   --popover-border: 240 15% 90%;
   
-  /* Primary - Deep Indigo/Violet */
-  --primary: 252 85% 58%;
+  /* Primary - Deep Dark Blue */
+  --primary: 217 95% 45%;
   --primary-foreground: 0 0% 100%;
-  --primary-glow: 252 90% 65%;
+  --primary-glow: 217 100% 52%;
   
-  /* Secondary - Rich Purple */
-  --secondary: 270 75% 55%;
+  /* Secondary - Rich Navy Blue */
+  --secondary: 220 90% 38%;
   --secondary-foreground: 0 0% 100%;
   
   /* Muted */
   --muted: 240 15% 92%;
   --muted-foreground: 240 10% 45%;
   
-  /* Accent - Vivid Violet */
-  --accent: 252 85% 58%;
+  /* Accent - Vivid Blue */
+  --accent: 217 95% 45%;
   --accent-foreground: 0 0% 100%;
   
   /* Destructive */
@@ -66,18 +66,18 @@
   
   /* Input */
   --input: 240 15% 90%;
-  --ring: 252 85% 58%;
+  --ring: 217 95% 45%;
   
   /* Chart colors - sophisticated palette */
-  --chart-1: 252 85% 58%;
+  --chart-1: 217 95% 45%;
   --chart-2: 160 75% 42%;
   --chart-3: 38 95% 55%;
-  --chart-4: 270 75% 55%;
-  --chart-5: 340 80% 55%;
+  --chart-4: 220 90% 38%;
+  --chart-5: 200 80% 50%;
   
   /* Status colors */
-  --status-new: 220 90% 55%;
-  --status-assigned: 270 80% 55%;
+  --status-new: 217 95% 45%;
+  --status-assigned: 220 90% 38%;
   --status-in-progress: 38 95% 50%;
   --status-pending: 25 100% 50%;
   --status-resolved: 160 70% 40%;
@@ -101,8 +101,8 @@
   --shadow-lg: 0 16px 48px rgba(0,0,0,0.10), 0 8px 16px rgba(0,0,0,0.06);
   --shadow-xl: 0 24px 64px rgba(0,0,0,0.12), 0 12px 24px rgba(0,0,0,0.08);
   --shadow-2xl: 0 32px 96px rgba(0,0,0,0.16);
-  --shadow-glow: 0 0 40px hsla(252, 85%, 58%, 0.25);
-  --shadow-glow-lg: 0 0 60px hsla(252, 85%, 58%, 0.35);
+  --shadow-glow: 0 0 40px hsla(217, 95%, 45%, 0.25);
+  --shadow-glow-lg: 0 0 60px hsla(217, 95%, 45%, 0.35);
   
   /* Glassmorphism tokens */
   --glass-bg: rgba(255, 255, 255, 0.75);
@@ -111,18 +111,18 @@
   --glass-blur: 20px;
   
   /* Border fallbacks */
-  --sidebar-primary-border: hsl(var(--sidebar-primary));
-  --sidebar-accent-border: hsl(var(--sidebar-accent));
-  --primary-border: hsl(var(--primary));
-  --secondary-border: hsl(var(--secondary));
+  --sidebar-primary-border: hsl(217, 95%, 45%);
+  --sidebar-accent-border: hsl(217, 95%, 45%);
+  --primary-border: hsl(217, 95%, 45%);
+  --secondary-border: hsl(220, 90%, 38%);
   --muted-border: hsl(var(--muted));
-  --accent-border: hsl(var(--accent));
+  --accent-border: hsl(217, 95%, 45%);
   --destructive-border: hsl(var(--destructive));
 }
 
 /* ============================================
    PREMIUM DESIGN SYSTEM - Dark Mode
-   Deep Indigo/Violet Professional Theme
+   Deep Blue Professional Theme
    ============================================ */
 .dark {
   --button-outline: rgba(255,255,255, .08);
@@ -149,24 +149,24 @@
   --sidebar: 250 40% 7%;
   --sidebar-foreground: 240 15% 88%;
   --sidebar-border: 250 25% 14%;
-  --sidebar-primary: 252 90% 65%;
+  --sidebar-primary: 217 95% 55%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 252 90% 65%;
+  --sidebar-accent: 217 95% 55%;
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-ring: 252 90% 68%;
+  --sidebar-ring: 217 95% 60%;
   
   /* Popover */
   --popover: 250 35% 10%;
   --popover-foreground: 240 15% 90%;
   --popover-border: 250 25% 20%;
   
-  /* Primary - Glowing Indigo */
-  --primary: 252 90% 65%;
+  /* Primary - Glowing Deep Blue */
+  --primary: 217 95% 55%;
   --primary-foreground: 250 40% 5%;
-  --primary-glow: 252 95% 72%;
+  --primary-glow: 217 100% 62%;
   
   /* Secondary */
-  --secondary: 270 80% 62%;
+  --secondary: 220 90% 48%;
   --secondary-foreground: 0 0% 100%;
   
   /* Muted */
@@ -174,7 +174,7 @@
   --muted-foreground: 240 10% 58%;
   
   /* Accent */
-  --accent: 252 90% 65%;
+  --accent: 217 95% 55%;
   --accent-foreground: 250 40% 5%;
   
   /* Destructive */
@@ -183,18 +183,18 @@
   
   /* Input */
   --input: 250 25% 14%;
-  --ring: 252 90% 68%;
+  --ring: 217 95% 60%;
   
-  /* Chart colors - neon palette */
-  --chart-1: 252 90% 68%;
+  /* Chart colors - blue palette */
+  --chart-1: 217 95% 55%;
   --chart-2: 160 80% 50%;
   --chart-3: 38 100% 58%;
-  --chart-4: 270 85% 65%;
-  --chart-5: 340 85% 62%;
+  --chart-4: 220 90% 48%;
+  --chart-5: 200 85% 55%;
   
   /* Status colors */
-  --status-new: 220 95% 62%;
-  --status-assigned: 270 85% 65%;
+  --status-new: 217 95% 55%;
+  --status-assigned: 220 90% 48%;
   --status-in-progress: 38 100% 55%;
   --status-pending: 25 100% 55%;
   --status-resolved: 160 75% 48%;
@@ -210,8 +210,8 @@
   --shadow-lg: 0 16px 48px rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.4);
   --shadow-xl: 0 24px 64px rgba(0,0,0,0.55), 0 12px 24px rgba(0,0,0,0.45);
   --shadow-2xl: 0 32px 96px rgba(0,0,0,0.6);
-  --shadow-glow: 0 0 50px hsla(252, 90%, 65%, 0.35);
-  --shadow-glow-lg: 0 0 80px hsla(252, 90%, 65%, 0.45);
+  --shadow-glow: 0 0 40px hsla(217, 95%, 55%, 0.3);
+  --shadow-glow-lg: 0 0 60px hsla(217, 95%, 55%, 0.4);
   
   /* Dark glassmorphism */
   --glass-bg: rgba(15, 12, 30, 0.65);
@@ -220,12 +220,12 @@
   --glass-blur: 24px;
   
   /* Border fallbacks */
-  --sidebar-primary-border: hsl(var(--sidebar-primary));
-  --sidebar-accent-border: hsl(var(--sidebar-accent));
-  --primary-border: hsl(var(--primary));
-  --secondary-border: hsl(var(--secondary));
+  --sidebar-primary-border: hsl(217, 95%, 55%);
+  --sidebar-accent-border: hsl(217, 95%, 55%);
+  --primary-border: hsl(217, 95%, 55%);
+  --secondary-border: hsl(220, 90%, 48%);
   --muted-border: hsl(var(--muted));
-  --accent-border: hsl(var(--accent));
+  --accent-border: hsl(217, 95%, 55%);
   --destructive-border: hsl(var(--destructive));
 }
 

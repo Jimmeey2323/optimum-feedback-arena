@@ -625,9 +625,9 @@ class MomenceAPI {
     }
     
     // Try case-insensitive substring match
-    const lowerName = locationName.toLowerCase();
+    const lowerName = (locationName ?? '').toLowerCase();
     for (const [key, value] of Object.entries(locationMap)) {
-      if (lowerName.includes(key.toLowerCase())) {
+      if (lowerName.includes((key ?? '').toLowerCase())) {
         return value;
       }
     }

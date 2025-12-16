@@ -151,8 +151,8 @@ export function TrainerFeedbackModal({ open, onOpenChange }: TrainerFeedbackModa
   });
 
   const filteredTrainers = MOCK_TRAINERS.filter(trainer =>
-    trainer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    trainer.specialization.toLowerCase().includes(searchQuery.toLowerCase())
+    (trainer.name ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (trainer.specialization ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleTrainerSelect = (trainer: TrainerProfile) => {
@@ -335,7 +335,7 @@ export function TrainerFeedbackModal({ open, onOpenChange }: TrainerFeedbackModa
                             <Avatar className="h-14 w-14 ring-2 ring-primary/20">
                               <AvatarImage src={trainer.avatar} />
                               <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-semibold">
-                                {trainer.name.split(' ').map(n => n[0]).join('')}
+                                {(trainer.name ?? '').split(' ').map(n => n[0]).join('')}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1 min-w-0">
@@ -385,7 +385,7 @@ export function TrainerFeedbackModal({ open, onOpenChange }: TrainerFeedbackModa
                     <CardContent className="p-4 flex items-center gap-4">
                       <Avatar className="h-12 w-12">
                         <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white">
-                          {selectedTrainer.name.split(' ').map(n => n[0]).join('')}
+                          {(selectedTrainer.name ?? '').split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
                       <div>

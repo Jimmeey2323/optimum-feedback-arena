@@ -66,7 +66,7 @@ import { cn } from "@/lib/utils";
 
 const STATUSES = {
   new: { label: "New", color: "bg-blue-500" },
-  assigned: { label: "Assigned", color: "bg-purple-500" },
+  assigned: { label: "Assigned", color: "bg-blue-600" },
   in_progress: { label: "In Progress", color: "bg-amber-500" },
   pending_customer: { label: "Pending Customer", color: "bg-orange-500" },
   resolved: { label: "Resolved", color: "bg-emerald-500" },
@@ -96,7 +96,7 @@ export default function Tickets() {
   const [slaFilter, setSlaFilter] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(true);
   const [selectedTickets, setSelectedTickets] = useState<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [viewMode, setViewMode] = useState<"table" | "list" | "grid" | "compact" | "kanban">("table");
   const [sortBy, setSortBy] = useState<string>("newest");
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -399,23 +399,19 @@ export default function Tickets() {
                   <SelectItem value="updated">Last Updated</SelectItem>
                 </SelectContent>
               </Select>
-              <div className="flex items-center border rounded-xl overflow-hidden">
-                <Button
-                  variant={viewMode === "list" ? "secondary" : "ghost"}
-                  size="icon"
-                  onClick={() => setViewMode("list")}
-                  className="rounded-none h-9"
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === "grid" ? "secondary" : "ghost"}
-                  size="icon"
-                  onClick={() => setViewMode("grid")}
-                  className="rounded-none h-9"
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                </Button>
+              <div className="flex items-center gap-2">
+                <Select value={viewMode} onValueChange={(v: any) => setViewMode(v)}>
+                  <SelectTrigger className="w-40 rounded-xl">
+                    <SelectValue placeholder="View mode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="table">Table</SelectItem>
+                    <SelectItem value="list">List</SelectItem>
+                    <SelectItem value="grid">Grid</SelectItem>
+                    <SelectItem value="compact">Compact</SelectItem>
+                    <SelectItem value="kanban">Kanban</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -634,134 +630,335 @@ export default function Tickets() {
         </Card>
       )}
 
-      {/* Tickets List/Grid */}
-      <div className={cn(
-        viewMode === "grid" 
-          ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
-          : "space-y-3"
-      )}>
-        {isLoading ? (
-          <>
-            {[1, 2, 3, 4, 5].map((i) => (
-              <TicketCardSkeleton key={i} />
-            ))}
-          </>
-        ) : tickets && tickets.length > 0 ? (
-          tickets.map((ticket: any) => {
-            const isOverdue = ticket.slaBreached || (ticket.slaDueAt && new Date(ticket.slaDueAt) < new Date() && 
-              !["resolved", "closed"].includes(ticket.status || ""));
-            
-            return (
-              <motion.div
-                key={ticket.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-start gap-3"
-              >
-                {viewMode === "list" && (
-                  <Checkbox
-                    checked={selectedTickets.has(ticket.id)}
-                    onCheckedChange={() => toggleTicketSelection(ticket.id)}
-                    className="mt-5"
-                  />
-                )}
-                <Card
-                  className={cn(
-                    "flex-1 glass-card cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
-                    "border-l-4",
-                    ticket.priority === "critical" ? "border-l-red-500" :
-                    ticket.priority === "high" ? "border-l-orange-500" :
-                    ticket.priority === "medium" ? "border-l-yellow-500" : "border-l-green-500",
-                    isOverdue && "ring-2 ring-red-500/50"
-                  )}
-                  onClick={() => handleTicketClick(ticket)}
-                >
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
-                      {/* Header */}
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <span className="font-mono text-xs text-muted-foreground">
-                              {ticket.ticketNumber}
-                            </span>
-                            {isOverdue && (
-                              <Badge variant="destructive" className="text-xs gap-1">
-                                <AlertTriangle className="h-3 w-3" />
-                                Overdue
-                              </Badge>
-                            )}
+      {/* Tickets Display */}
+      {isLoading ? (
+        <div className="space-y-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <TicketCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : tickets && tickets.length > 0 ? (
+        <>
+          {/* Table View */}
+          {viewMode === "table" && (
+            <div className="border rounded-xl overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr className="border-b">
+                    <th className="text-left p-3 text-xs font-medium">
+                      <Checkbox
+                        checked={selectedTickets.size === tickets.length}
+                        onCheckedChange={(checked) => checked ? selectAllVisible() : setSelectedTickets(new Set())}
+                      />
+                    </th>
+                    <th className="text-left p-3 text-xs font-medium">Title</th>
+                    <th className="text-left p-3 text-xs font-medium">Status</th>
+                    <th className="text-left p-3 text-xs font-medium">Priority</th>
+                    <th className="text-left p-3 text-xs font-medium">Category</th>
+                    <th className="text-left p-3 text-xs font-medium">Customer</th>
+                    <th className="text-left p-3 text-xs font-medium">Studio</th>
+                    <th className="text-left p-3 text-xs font-medium">Assigned</th>
+                    <th className="text-left p-3 text-xs font-medium">Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tickets.map((ticket: any) => {
+                    const isOverdue = ticket.slaBreached || (ticket.slaDueAt && new Date(ticket.slaDueAt) < new Date() && 
+                      !["resolved", "closed"].includes(ticket.status || ""));
+                    return (
+                      <motion.tr
+                        key={ticket.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className={cn(
+                          "border-b cursor-pointer hover:bg-muted/30 transition-colors",
+                          isOverdue && "bg-red-500/5"
+                        )}
+                        onClick={() => handleTicketClick(ticket)}
+                      >
+                        <td className="p-3" onClick={(e) => e.stopPropagation()}>
+                          <Checkbox
+                            checked={selectedTickets.has(ticket.id)}
+                            onCheckedChange={() => toggleTicketSelection(ticket.id)}
+                          />
+                        </td>
+                        <td className="p-3">
+                          <div className="flex flex-col">
+                            <span className="font-medium text-sm line-clamp-1">{ticket.title}</span>
+                            <span className="text-xs text-muted-foreground">{ticket.ticketNumber}</span>
                           </div>
-                          <h3 className="font-medium text-sm line-clamp-2">
-                            {ticket.title}
-                          </h3>
+                        </td>
+                        <td className="p-3"><StatusBadge status={ticket.status || "new"} /></td>
+                        <td className="p-3"><PriorityBadge priority={ticket.priority || "medium"} /></td>
+                        <td className="p-3"><span className="text-sm">{ticket.category?.name || "—"}</span></td>
+                        <td className="p-3"><span className="text-sm">{ticket.customerName || "—"}</span></td>
+                        <td className="p-3"><span className="text-sm">{ticket.studio?.name || "—"}</span></td>
+                        <td className="p-3"><span className="text-sm">{ticket.assignedTo?.displayName || "Unassigned"}</span></td>
+                        <td className="p-3"><span className="text-xs text-muted-foreground">{ticket.createdAt && formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true })}</span></td>
+                      </motion.tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* List View */}
+          {viewMode === "list" && (
+            <div className="space-y-3">
+              {tickets.map((ticket: any) => {
+                const isOverdue = ticket.slaBreached || (ticket.slaDueAt && new Date(ticket.slaDueAt) < new Date() && 
+                  !["resolved", "closed"].includes(ticket.status || ""));
+                return (
+                  <motion.div
+                    key={ticket.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-start gap-3"
+                  >
+                    <Checkbox
+                      checked={selectedTickets.has(ticket.id)}
+                      onCheckedChange={() => toggleTicketSelection(ticket.id)}
+                      className="mt-5"
+                    />
+                    <Card
+                      className={cn(
+                        "flex-1 glass-card cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
+                        "border-l-4",
+                        ticket.priority === "critical" ? "border-l-red-500" :
+                        ticket.priority === "high" ? "border-l-orange-500" :
+                        ticket.priority === "medium" ? "border-l-yellow-500" : "border-l-green-500",
+                        isOverdue && "ring-2 ring-red-500/50"
+                      )}
+                      onClick={() => handleTicketClick(ticket)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-medium text-sm line-clamp-2 mb-1">{ticket.title}</h3>
+                              <span className="font-mono text-xs text-muted-foreground">{ticket.ticketNumber}</span>
+                              {isOverdue && (
+                                <Badge variant="destructive" className="text-xs gap-1 ml-2">
+                                  <AlertTriangle className="h-3 w-3" />
+                                  Overdue
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex flex-col items-end gap-2 shrink-0">
+                              <StatusBadge status={ticket.status || "new"} />
+                              <PriorityBadge priority={ticket.priority || "medium"} />
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            {ticket.category && <Badge variant="outline" className="rounded-lg">{ticket.category.name}</Badge>}
+                          </div>
+                          <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                              {ticket.customerName && (
+                                <span className="flex items-center gap-1">
+                                  <User className="h-3 w-3" />
+                                  {ticket.customerName}
+                                </span>
+                              )}
+                              {ticket.studio && (
+                                <span className="flex items-center gap-1">
+                                  <Building2 className="h-3 w-3" />
+                                  {ticket.studio.name}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Clock className="h-3 w-3" />
+                              {ticket.createdAt && formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true })}
+                            </div>
+                          </div>
+                          {ticket.assignedTo && (
+                            <div className="flex items-center gap-2 pt-2">
+                              <Avatar className="h-5 w-5">
+                                <AvatarFallback className="text-[10px] bg-primary/20">
+                                  {((ticket.assignedTo.displayName ?? ticket.assignedTo.firstName ?? "U") || "U").slice(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="text-xs text-muted-foreground">
+                                Assigned to {ticket.assignedTo.displayName || ticket.assignedTo.firstName || "User"}
+                              </span>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex flex-col items-end gap-2 shrink-0">
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Grid View */}
+          {viewMode === "grid" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {tickets.map((ticket: any) => {
+                const isOverdue = ticket.slaBreached || (ticket.slaDueAt && new Date(ticket.slaDueAt) < new Date() && 
+                  !["resolved", "closed"].includes(ticket.status || ""));
+                return (
+                  <motion.div
+                    key={ticket.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                  >
+                    <Card
+                      className={cn(
+                        "glass-card cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
+                        "border-l-4 h-full",
+                        ticket.priority === "critical" ? "border-l-red-500" :
+                        ticket.priority === "high" ? "border-l-orange-500" :
+                        ticket.priority === "medium" ? "border-l-yellow-500" : "border-l-green-500",
+                        isOverdue && "ring-2 ring-red-500/50"
+                      )}
+                      onClick={() => handleTicketClick(ticket)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="font-medium text-sm line-clamp-2 flex-1">{ticket.title}</h3>
+                            <StatusBadge status={ticket.status || "new"} />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <PriorityBadge priority={ticket.priority || "medium"} />
+                            {ticket.category && <Badge variant="outline" className="text-xs">{ticket.category.name}</Badge>}
+                          </div>
+                          <div className="space-y-1 text-xs text-muted-foreground">
+                            {ticket.customerName && (
+                              <div className="flex items-center gap-1">
+                                <User className="h-3 w-3" />
+                                {ticket.customerName}
+                              </div>
+                            )}
+                            {ticket.studio && (
+                              <div className="flex items-center gap-1">
+                                <Building2 className="h-3 w-3" />
+                                {ticket.studio.name}
+                              </div>
+                            )}
+                            {ticket.assignedTo && (
+                              <div className="flex items-center gap-1">
+                                <User className="h-3 w-3" />
+                                {ticket.assignedTo.displayName || "Assigned"}
+                              </div>
+                            )}
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {ticket.createdAt && formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true })}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Compact View */}
+          {viewMode === "compact" && (
+            <Card className="overflow-hidden">
+              <div className="divide-y">
+                {tickets.map((ticket: any) => {
+                  const isOverdue = ticket.slaBreached || (ticket.slaDueAt && new Date(ticket.slaDueAt) < new Date() && 
+                    !["resolved", "closed"].includes(ticket.status || ""));
+                  return (
+                    <motion.div
+                      key={ticket.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className={cn(
+                        "p-3 cursor-pointer hover:bg-muted/30 transition-colors flex items-center gap-3",
+                        isOverdue && "bg-red-500/5"
+                      )}
+                      onClick={() => handleTicketClick(ticket)}
+                    >
+                      <Checkbox
+                        checked={selectedTickets.has(ticket.id)}
+                        onCheckedChange={() => toggleTicketSelection(ticket.id)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <div className="flex-1 min-w-0 flex items-center gap-3">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm line-clamp-1">{ticket.title}</h4>
+                          <p className="text-xs text-muted-foreground">{ticket.ticketNumber}</p>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           <StatusBadge status={ticket.status || "new"} />
                           <PriorityBadge priority={ticket.priority || "medium"} />
-                        </div>
-                      </div>
-
-                      {/* Category & Subcategory */}
-                      <div className="flex items-center gap-2 text-xs">
-                        {ticket.category && (
-                          <Badge variant="outline" className="rounded-lg">
-                            {ticket.category.name}
-                          </Badge>
-                        )}
-                        {ticket.subcategory && (
-                          <span className="text-muted-foreground">
-                            / {ticket.subcategory.name}
+                          <span className="text-xs text-muted-foreground min-w-[100px] text-right">
+                            {ticket.createdAt && formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true })}
                           </span>
-                        )}
-                      </div>
-
-                      {/* Details Row */}
-                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          {ticket.customerName && (
-                            <span className="flex items-center gap-1">
-                              <User className="h-3 w-3" />
-                              {ticket.customerName}
-                            </span>
-                          )}
-                          {ticket.studio && (
-                            <span className="flex items-center gap-1">
-                              <Building2 className="h-3 w-3" />
-                              {ticket.studio.name}
-                            </span>
-                          )}
-                          {ticket.source && (
-                            <Badge variant="secondary" className="text-xs">
-                              {SOURCES[ticket.source as keyof typeof SOURCES] || ticket.source}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          {ticket.createdAt && formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true })}
                         </div>
                       </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
 
-                      {/* Assignee */}
-                      {ticket.assignedTo && (
-                        <div className="flex items-center gap-2 pt-2">
-                          <Avatar className="h-5 w-5">
-                            <AvatarFallback className="text-[10px] bg-primary/20">
-                              {(ticket.assignedTo.displayName || ticket.assignedTo.firstName || "U").slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-xs text-muted-foreground">
-                            Assigned to {ticket.assignedTo.displayName || ticket.assignedTo.firstName || "User"}
-                          </span>
+          {/* Kanban View */}
+          {viewMode === "kanban" && (
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {Object.entries(STATUSES).map(([statusKey, statusConfig]) => {
+                const statusTickets = tickets.filter((t: any) => (t.status || "new") === statusKey);
+                return (
+                  <div key={statusKey} className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
+                      <h3 className="font-semibold text-sm">{statusConfig.label}</h3>
+                      <Badge variant="secondary" className="text-xs">{statusTickets.length}</Badge>
+                    </div>
+                    <div className="space-y-2">
+                      {statusTickets.map((ticket: any) => (
+                        <Card
+                          key={ticket.id}
+                          className="cursor-pointer hover:shadow-md transition-shadow"
+                          onClick={() => handleTicketClick(ticket)}
+                        >
+                          <CardContent className="p-3 space-y-2">
+                            <h4 className="font-medium text-sm line-clamp-2">{ticket.title}</h4>
+                            <div className="flex items-center gap-2">
+                              <PriorityBadge priority={ticket.priority || "medium"} />
+                              {ticket.category && (
+                                <Badge variant="outline" className="text-xs">{ticket.category.name}</Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              {ticket.assignedTo ? (
+                                <>
+                                  <Avatar className="h-4 w-4">
+                                    <AvatarFallback className="text-[8px] bg-primary/20">
+                                      {((ticket.assignedTo.displayName ?? ticket.assignedTo.firstName ?? "U") || "U").slice(0, 2).toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <span>{ticket.assignedTo.displayName?.split(' ')[0] || "User"}</span>
+                                </>
+                              ) : (
+                                <span>Unassigned</span>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                      {statusTickets.length === 0 && (
+                        <div className="text-center py-8 text-sm text-muted-foreground">
+                          No tickets
                         </div>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )
         ) : (
           <EmptyState
             title="No tickets found"

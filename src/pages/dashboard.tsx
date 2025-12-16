@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button";
 import { TicketCard } from "@/components/ticket-card";
 import { EmptyState } from "@/components/empty-state";
 import { DashboardSkeleton, TicketCardSkeleton } from "@/components/loading-skeleton";
-import { AIInsightsCompact } from "@/components/ai-insights-panel";
 import { PieChart, Pie, Cell, ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -225,15 +224,6 @@ export default function Dashboard() {
             New Ticket
           </Link>
         </Button>
-      </motion.div>
-
-      {/* AI Insights Compact */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-      >
-        <AIInsightsCompact />
       </motion.div>
 
       {/* Stats Grid */}

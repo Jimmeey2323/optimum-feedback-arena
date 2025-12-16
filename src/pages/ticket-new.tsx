@@ -140,7 +140,7 @@ export default function NewTicket() {
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [showCustomerBlock, setShowCustomerBlock] = useState(false);
   const [ticketNumber, setTicketNumber] = useState("");
-  const [selectedClients, setSelectedClients] = useState<any[]>([]);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [selectedSessions, setSelectedSessions] = useState<SelectedSession[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -349,22 +349,16 @@ export default function NewTicket() {
   };
 
   const handleClientSelect = (client: any) => {
-    const isAlreadySelected = selectedClients.some(c => c.id === client.id);
-    
-    let updated: any[];
-    if (isAlreadySelected) {
-      updated = selectedClients.filter(c => c.id !== client.id);
-    } else {
-      updated = [...selectedClients, client];
-      if (selectedClients.length === 0) {
-        form.setValue("customerName", `${client.firstName || ''} ${client.lastName || ''}`.trim() || "");
-        form.setValue("customerEmail", client.email || "");
-        form.setValue("customerPhone", client.phone || "");
-        form.setValue("customerMembershipId", client.id !== undefined ? String(client.id) : "");
-        form.setValue("customerStatus", client.membershipStatus || "");
-      }
-    }
-    setSelectedClients(updated);
+    // Populate primary customer fields from Momence selection
+    form.setValue("customerName", `${client.firstName || ''} ${client.lastName || ''}`.trim() || "");
+    form.setValue("customerEmail", client.email || "");
+    form.setValue("customerPhone", client.phone || "");
+    form.setValue("customerMembershipId", client.id !== undefined ? String(client.id) : "");
+    form.setValue("customerStatus", client.membershipStatus || "");
+    // Optionally tag the ticket source
+    form.setValue("source", "momence");
+    setSelectedClientId(client.id ?? null);
+    if (!showCustomerBlock) setShowCustomerBlock(true);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -392,6 +386,7 @@ export default function NewTicket() {
   const renderDynamicField = (field: DynamicField) => {
     const fieldTypeName = field.fieldType?.name || '';
     const inputComponent = field.fieldType?.inputComponent || 'Input';
+    const fieldLabel = field.label || 'Field';
 
     return (
       <FormField
@@ -401,7 +396,7 @@ export default function NewTicket() {
         render={({ field: formField }) => (
           <FormItem>
             <FormLabel>
-              {field.label}
+              {fieldLabel}
               {field.isRequired && <span className="text-destructive ml-1">*</span>}
             </FormLabel>
             <FormControl>
@@ -411,7 +406,7 @@ export default function NewTicket() {
                   value={(formField.value as string) || ''}
                 >
                   <SelectTrigger className="rounded-xl bg-background">
-                    <SelectValue placeholder={`Select ${field.label.toLowerCase()}`} />
+                    <SelectValue placeholder={`Select ${fieldLabel.toLowerCase()}`} />
                   </SelectTrigger>
                   <SelectContent className="bg-popover border border-border z-50">
                     {field.options?.map((opt, idx) => (
@@ -423,7 +418,7 @@ export default function NewTicket() {
                 </Select>
               ) : inputComponent === 'Textarea' || fieldTypeName === 'Long Text' ? (
                 <Textarea
-                  placeholder={`Enter ${field.label.toLowerCase()}`}
+                  placeholder={`Enter ${fieldLabel.toLowerCase()}`}
                   value={(formField.value as string) || ''}
                   onChange={formField.onChange}
                   className="rounded-xl"
@@ -439,7 +434,7 @@ export default function NewTicket() {
               ) : (
                 <Input
                   type={fieldTypeName === 'Email' ? 'email' : fieldTypeName === 'Phone' ? 'tel' : 'text'}
-                  placeholder={`Enter ${field.label.toLowerCase()}`}
+                  placeholder={`Enter ${fieldLabel.toLowerCase()}`}
                   value={(formField.value as string) || ''}
                   onChange={formField.onChange}
                   className="rounded-xl"
@@ -913,7 +908,7 @@ export default function NewTicket() {
                           >
                             <ClientSearch 
                               onClientSelect={handleClientSelect}
-                              selectedClients={selectedClients}
+                              selectedClientId={selectedClientId ?? undefined}
                             />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
