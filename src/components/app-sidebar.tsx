@@ -10,6 +10,8 @@ import {
   Bell,
   BarChart3,
   Sparkles,
+  FileText,
+  Star,
 } from "lucide-react";
 import {
   Sidebar,
@@ -32,6 +34,7 @@ const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "All Tickets", url: "/tickets", icon: Ticket },
   { title: "New Ticket", url: "/tickets/new", icon: Plus },
+  { title: "Templates", url: "/templates", icon: FileText },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
 ];
 
